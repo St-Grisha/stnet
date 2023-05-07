@@ -1,4 +1,5 @@
 import os
+import time
 import requests
 import argparse
 
@@ -13,7 +14,7 @@ def get_deposit_address(eth_amount, stark_address, stark_pubkey):
     "grant_type": "credentialless"}
 
     auth_resp = requests.post('https://identity-api.layerswap.io/connect/token', data=data_auth)
-    assert auth_resp.status_code == 200
+    assert auth_resp.status_code == 200, 'Repeat later'
     creds = auth_resp.json()
     creds['expires_in'] = str(creds['expires_in'])
 
@@ -24,7 +25,7 @@ def get_deposit_address(eth_amount, stark_address, stark_pubkey):
             "r":None,
             "p":{}}
     init_resp = requests.post('https://plausible.io/api/event', data=data, headers=creds)
-    assert init_resp.status_code == 202
+    assert init_resp.status_code == 202, 'Repeat later'
 
 
     # GET SWAP ID
@@ -39,16 +40,17 @@ def get_deposit_address(eth_amount, stark_address, stark_pubkey):
 
     header = {'authorization':creds['token_type']+' '+creds['access_token']}
     swap_resp = requests.post('https://bridge-api.layerswap.io//api/swaps', json=data_swap, headers=header)
-    assert swap_resp.status_code == 200
+    assert swap_resp.status_code == 200, 'Repeat later'
 
 
     swap_id = swap_resp.json()['data']['swap_id']
 
-
+    
     # SWAP INFO
     swap_info = requests.get(f'https://bridge-api.layerswap.io//api/swaps/{swap_id}', headers=header)
+    
     deposit_address = swap_info.json()['data']['deposit_address']
-    return deposit_address
+    return deposit_address, swap_id, header
 
 
 def binance_withdraw(eth_amount,
@@ -64,19 +66,34 @@ def binance_withdraw(eth_amount,
                     network='BSC')
     
     
-def main(eth_amount, stark_address, stark_pubkey):
+def main(eth_amount, stark_address, stark_pubkey, return_starknet_transaction):
     
-    deposit_address = get_deposit_address(eth_amount, stark_address, stark_pubkey)
+    deposit_address, swap_id, header = get_deposit_address(eth_amount, stark_address, stark_pubkey)
     binance_withdraw(eth_amount, deposit_address)
-    return 1
+    
+    return_final = 'Done'
+    if return_starknet_transaction:
+        
+        while return_final == 'Done':
+            swap_info = requests.get(f'https://bridge-api.layerswap.io//api/swaps/{swap_id}', headers=header)
+            if 'output_transaction' in swap_info.keys():
+                return_final = 'https://starkscan.co/tx/'+swap_info['output_transaction']['transaction_id']
+            else:
+                time.sleep(10)
+    return return_final
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Choose address and amount')
     parser.add_argument('eth_amount', type=float, help='Choose amount of ETH to withdraw')
     parser.add_argument('deposit_address', type=str, help='deposit address in starknet')
     parser.add_argument('starknet_pubkey', type=str, help='starknet pubkey')
+    parser.add_argument('starknet_transaction', type=bool, help='print a starknet transaction', 
+                        default=False)
+    
+    
     
     args = parser.parse_args()
-    main(args.eth_amount, args.deposit_address, args.starknet_pubkey)
-    print('done')
-
+    
+    return_final = main(args.eth_amount, args.deposit_address, args.starknet_pubkey, args.starknet_transaction)
+    
+    print(return_final)
