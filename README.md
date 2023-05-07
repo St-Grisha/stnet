@@ -1,5 +1,9 @@
 # stnet
 
+Для начала 
+```
+pip install -r requirements.txt
+```
 
 ## Layerswap
 Мы будем использовать переменные среды для хранения персональных данных. Скрипт layerswap.py требует наличия двух переменных в окружении: binance apikey, binance secretkey.
