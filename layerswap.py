@@ -6,7 +6,7 @@ import argparse
 from binance.spot import Spot as Client
 
 
-def get_deposit_address(eth_amount, stark_address, stark_pubkey):
+def get_deposit_address(eth_amount, stark_address, stark_pubkey=1):
 #     eth_amount = 1
 
     # AUTH
@@ -20,7 +20,7 @@ def get_deposit_address(eth_amount, stark_address, stark_pubkey):
 
     # INIT
     data = {"n":"Swap initiated",
-            "u":f"https://www.layerswap.io/?addressSource=braavos&destAddress={stark_address}&destNetwork=starknet_mainnet&lockNetwork=true&pubKey={stark_pubkey}&lockAddress=true&from=&to=starknet_mainnet&lockFrom=&lockTo=true",
+            "u":f"https://www.layerswap.io/?addressSource=braavos&destAddress={stark_address}&destNetwork=starknet_mainnet&lockNetwork=true&lockAddress=true&from=&to=starknet_mainnet&lockFrom=&lockTo=true",
             "d":"layerswap.io",
             "r":None,
             "p":{}}
@@ -86,7 +86,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Choose address and amount')
     parser.add_argument('eth_amount', type=float, help='Choose amount of ETH to withdraw')
     parser.add_argument('deposit_address', type=str, help='deposit address in starknet')
-    parser.add_argument('starknet_pubkey', type=str, help='starknet pubkey')
+    #parser.add_argument('starknet_pubkey', type=str, help='starknet pubkey')
     parser.add_argument('starknet_transaction', type=bool, help='print a starknet transaction', 
                         default=False)
     
@@ -94,6 +94,6 @@ if __name__ == '__main__':
     
     args = parser.parse_args()
     
-    return_final = main(args.eth_amount, args.deposit_address, args.starknet_pubkey, args.starknet_transaction)
+    return_final = main(args.eth_amount, args.deposit_address, 1, args.starknet_transaction)
     
     print(return_final)
