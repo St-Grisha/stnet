@@ -15,16 +15,16 @@ pip install -r requirements.txt
 
 После этого запустить команду
 ``` 
-layerswap.py ETH_AMOUNT STARKNET_ADDRESS STARKNET_PUBKEY 
+layerswap.py ETH_AMOUNT STARKNET_ADDRESS 
 ```
 Пример:
 ``` 
-layerswap.py 0.05 0x020f2547adbda790ec290a7366446f98e200def6245b9a02cfab88061e608cc2 0xb593b6ed32fe4b19b5172f25b86b07c53ab94336fbdc510088e87a16c10a28 
+layerswap.py 0.05 0x020f2547adbda790ec290a7366446f98e200def6245b9a02cfab88061e608cc2  
 ```
 
 Дальше ждем 20-40 минут для начисления средств. Если необходимо получить ссылку на транзакцию для отслеживания ее выполенния, необходимо в конце еще дописать True:
 ``` 
-layerswap.py 0.05 0x020f2547adbda790ec290a7366446f98e200def6245b9a02cfab88061e608cc2 0xb593b6ed32fe4b19b5172f25b86b07c53ab94336fbdc510088e87a16c10a28 True
+layerswap.py 0.05 0x020f2547adbda790ec290a7366446f98e200def6245b9a02cfab88061e608cc2 True
 ```
 
 
