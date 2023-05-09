@@ -58,8 +58,8 @@ nano starknet_open_zeppelin_accounts.json
 ```
 И помещаем это в энвы среды: ```export STARKNET_WALLET=starkware.starknet.wallets.open_zeppelin.OpenZeppelinAccount```
 
-Теперь можно запускать скрипт. Он принимает на вход только адрес кошелька и количество эфиров для свапа в USDT:
+Теперь можно запускать скрипт. Он принимает на вход адрес кошелька, количество токенов, токен для свапа и токен для получения:
 ```
-python jediswap.py 0.001 0x020f2547adbda790ec290a7366446f98e200def6245b9a02cfab88061e608cc2
+python jediswap.py 0.001 0x020f2547adbda790ec290a7366446f98e200def6245b9a02cfab88061e608cc2 ETH USDT
 ```
 
