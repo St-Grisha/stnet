@@ -63,3 +63,10 @@ nano starknet_open_zeppelin_accounts.json
 python jediswap.py 0.001 0x020f2547adbda790ec290a7366446f98e200def6245b9a02cfab88061e608cc2 ETH USDT
 ```
 
+## Myswap
+
+Нужно сделать все то же, что для Jediswap.
+Потом есть скрипт, который свапает с ETH на USDT. Пока есть только одна пара, надо лишь написать объем:
+```
+python myswap.py 0.001
+```
