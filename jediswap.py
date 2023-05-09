@@ -3,12 +3,14 @@ import time
 import subprocess
 import argparse
 
+def add_acc(x, acc):
+    x += f' --wallet {acc}'
+    return x
 
-def main(eth_amount, my_address, token_from='ETH', token_to='USDT'):
+
+def main(eth_amount, my_address, token_from='ETH', token_to='USDT', multiacc=False):
     contract_address = '0x05900cfa2b50d53b097cb305d54e249e31f24f881885aae5639b0cd6af4ed298'
-    # my_address = '0x054e3682d5227b7f0c72cfcba78c77e133909180faba7f2deb581547ab2eca76'
 
-    # eth_amount = 0.001
     gwei_amount = ('{:.0f}'.format(eth_amount*(10**18))) 
 
     os.environ["STARKNET_NETWORK"] = "alpha-mainnet"
@@ -18,7 +20,6 @@ def main(eth_amount, my_address, token_from='ETH', token_to='USDT'):
     # контракту 0x041fd22b238fa21cfcf5dd45a8548974d8263b3a531a60388411c5e230f97023 -- это JediSwap
     # команда тратит газ   
     
-    # ETH_ADDRESS = ''
     address_book = dict()
     address_book["ETH"] = '0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7'
     
@@ -30,7 +31,8 @@ def main(eth_amount, my_address, token_from='ETH', token_to='USDT'):
     address_from = address_book[token_from]
     address_to = address_book[token_to]
     command_approve = f'starknet invoke --address {address_from} --function approve --abi approve.json --inputs 0x041fd22b238fa21cfcf5dd45a8548974d8263b3a531a60388411c5e230f97023 {gwei_amount} 0' 
-
+    if multiacc:
+        command_approve = add_acc(command_approve)
 
     p = subprocess.Popen(command_approve, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
@@ -41,6 +43,8 @@ def main(eth_amount, my_address, token_from='ETH', token_to='USDT'):
     get_out_amount = f'starknet call --address 0x041fd22b238fa21cfcf5dd45a8548974d8263b3a531a60388411c5e230f97023 --function get_amounts_out --abi jediswap.json --inputs {gwei_amount} 0 2 {address_from} {curr_address}'
     time.sleep(60*10)
     
+    # Тут сервера ложатся неприлично часто, поэтому надо проверять, что колл прошел
+    
     answer = b'trying'
     while answer == b'trying':
         p = subprocess.Popen(get_out_amount, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -49,12 +53,8 @@ def main(eth_amount, my_address, token_from='ETH', token_to='USDT'):
         answer = answer[3]
         time.sleep(1)
         print('we here')
-    # if answer != b'trying':
     
     out_amount = int(int(answer) * 0.98) # Допустимое проскальзывание 2%
-    
-    
-    # time.sleep(60*10)
     
     end_time = int(time.time()) + 60*60
     
@@ -63,6 +63,9 @@ def main(eth_amount, my_address, token_from='ETH', token_to='USDT'):
     # команда тратит газ
     
     jediswap_command = f"starknet invoke --address 0x041fd22b238fa21cfcf5dd45a8548974d8263b3a531a60388411c5e230f97023 --function swap_exact_tokens_for_tokens --abi jediswap.json --inputs {gwei_amount} 0 {out_amount} 0 2 {address_from} {curr_address} {my_address} {end_time}" 
+    
+    if multiacc:
+        jediswap_command = add_acc(jediswap_command)
     
     p = subprocess.Popen(jediswap_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     for i in p.stdout.readlines():
@@ -76,7 +79,7 @@ if __name__ == '__main__':
     parser.add_argument('token_to', type=str, help='Choose token')
     
     args = parser.parse_args()
-    if ['ETH'] in [args.token_from, args.token_to]:
+    if 'ETH' in [args.token_from, args.token_to]:
         main(args.eth_amount, args.my_address, args.token_from, args.token_to)
     else:
         print('one of the token must be an ETH')
