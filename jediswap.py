@@ -40,7 +40,7 @@ def main(eth_amount, my_address, token_from='ETH', token_to='USDT', multiacc=Fal
         print(i)
 
     
-    get_out_amount = f'starknet call --address 0x041fd22b238fa21cfcf5dd45a8548974d8263b3a531a60388411c5e230f97023 --function get_amounts_out --abi jediswap.json --inputs {gwei_amount} 0 2 {address_from} {curr_address}'
+    get_out_amount = f'starknet call --address 0x041fd22b238fa21cfcf5dd45a8548974d8263b3a531a60388411c5e230f97023 --function get_amounts_out --abi jediswap.json --inputs {gwei_amount} 0 2 {address_from} {address_to}'
     time.sleep(60*10)
     
     # Тут сервера ложатся неприлично часто, поэтому надо проверять, что колл прошел
@@ -62,7 +62,7 @@ def main(eth_amount, my_address, token_from='ETH', token_to='USDT', multiacc=Fal
     # на USDT 0x68f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8 
     # команда тратит газ
     
-    jediswap_command = f"starknet invoke --address 0x041fd22b238fa21cfcf5dd45a8548974d8263b3a531a60388411c5e230f97023 --function swap_exact_tokens_for_tokens --abi jediswap.json --inputs {gwei_amount} 0 {out_amount} 0 2 {address_from} {curr_address} {my_address} {end_time}" 
+    jediswap_command = f"starknet invoke --address 0x041fd22b238fa21cfcf5dd45a8548974d8263b3a531a60388411c5e230f97023 --function swap_exact_tokens_for_tokens --abi jediswap.json --inputs {gwei_amount} 0 {out_amount} 0 2 {address_from} {address_to} {my_address} {end_time}" 
     
     if multiacc:
         jediswap_command = add_acc(jediswap_command)
