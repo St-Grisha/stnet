@@ -35,7 +35,7 @@ def main(eth_amount):
     time.sleep(60*10)
     
     # Тут сервера ложатся неприлично часто, поэтому надо проверять, что колл прошел
-    
+    eth_count = 'while'
     while eth_count == 'while':
         p = subprocess.Popen(get_out_amount, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         answer = p.stdout.readlines()
