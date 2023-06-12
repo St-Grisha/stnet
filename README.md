@@ -70,3 +70,43 @@ python jediswap.py 0.001 0x020f2547adbda790ec290a7366446f98e200def6245b9a02cfab8
 ```
 python myswap.py 0.001
 ```
+
+## Мульты
+
+Делаем все по инструкции выше. Добавляем в файл starknet_open_zeppelin_accounts.json данные всех своих мультов.
+
+```
+{"alpha-mainnet":
+   {"__default__":{"address":"YOUR_ACCOUNT_ADDRESS",
+                   "private_key":"YOUR_ACCOUNT_PRIVATE_KEY"},
+   "account_name_2":{"address":"YOUR_ACCOUNT_ADDRESS_2",
+                   "private_key":"YOUR_ACCOUNT_PRIVATE_KEY_2"},
+   "account_name_3":{"address":"YOUR_ACCOUNT_ADDRESS_3",
+                   "private_key":"YOUR_ACCOUNT_PRIVATE_KEY_3"},
+   ...
+   }
+}
+```
+Далее нужно раскидать по всем кошелькам средства, используя Binance. Для этого нужно создать файл wallets.py со следующим содержанием (название кошелька и его адрес):
+
+```
+wallets = {"account_name_2":"YOUR_ACCOUNT_ADDRESS_2",
+"account_name_3":"YOUR_ACCOUNT_ADDRESS_3"} 
+```
+
+После чего запустить  
+```
+python mult.py --deposit True --eth_amount_to_deposit 0.1 
+```
+
+Скрипт раскидает примерно одинаковые рандомные суммы (+- 5%) на каждый кошелек с максимальным ограничением 0.1 ETH (внимание: сумма всех выводов не превысит 0.1 ETH). То есть если 5 кошельков и 0.1 ETH, то на каждом окажется примерно 0.02. 
+
+Если аккаунты еще не задеплоены, то нужно руками прокликать deploy account в расширении. Хз, как сделать нормально.
+
+Дальше для массового свапа ETH на околорандомные суммы нужно запустить:
+
+```
+python mult.py --swap True --eth_amount_to_swap 0.01 
+```
+
+Этот скрипт на каждом кошельке проведет одну транзакцию обмена ETH на один из стейблов или обернутый биткоин. Рандомно выберет делать это на myswap или на jediswap. GL HF

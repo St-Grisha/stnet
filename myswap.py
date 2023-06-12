@@ -4,7 +4,8 @@ import subprocess
 import argparse
 from web3 import Web3
 
-def main(eth_amount):
+
+def myswap(eth_amount, wallet='__default__'):
     contract_address = '0x010884171baf1914edc28d7afb619b40a4051cfae78a094a55d230f19e944a28'
 
     gwei_amount = ('{:.0f}'.format(eth_amount*(10**18))) 
@@ -22,7 +23,7 @@ def main(eth_amount):
     
     address_from = address_book["ETH"]
     address_to = address_book["USDT"]
-    command_approve = f'starknet invoke --address {address_from} --function approve --abi approve.json --inputs {contract_address} {gwei_amount} 0' 
+    command_approve = f'starknet invoke --address {address_from} --function approve --abi approve.json --account {wallet} --inputs {contract_address} {gwei_amount} 0 ' 
 
 
     p = subprocess.Popen(command_approve, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -32,7 +33,7 @@ def main(eth_amount):
 
     
     get_out_amount = f'starknet call --address {contract_address} --function get_pool --abi myswap.json --inputs 4'
-    time.sleep(60*10)
+    time.sleep(60*3)
     
     # Тут сервера ложатся неприлично часто, поэтому надо проверять, что колл прошел
     eth_count = 'while'
@@ -52,7 +53,7 @@ def main(eth_amount):
     # на USDT 0x68f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8 
     # команда тратит газ
     
-    myswap_command = f"starknet invoke --address {contract_address} --function swap --abi myswap.json --inputs 4 {address_from} {gwei_amount} 0 {min_out} 0" 
+    myswap_command = f"starknet invoke --address {contract_address} --function swap --abi myswap.json --account {wallet} --inputs 4 {address_from} {gwei_amount} 0 {min_out} 0" 
     
     
     p = subprocess.Popen(myswap_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -62,7 +63,5 @@ def main(eth_amount):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Choose address and amount')
     parser.add_argument('eth_amount', type=float, help='Choose amount of ETH to swap in USDT')
-    
     args = parser.parse_args()
-    
-    main(args.eth_amount)
+    myswap(args.eth_amount)

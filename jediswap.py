@@ -3,12 +3,8 @@ import time
 import subprocess
 import argparse
 
-def add_acc(x, acc):
-    x += f' --wallet {acc}'
-    return x
 
-
-def main(eth_amount, my_address, token_from='ETH', token_to='USDT', multiacc=False):
+def jediswap(eth_amount, my_address, token_from='ETH', token_to='USDT', wallet='__default__'):
     contract_address = '0x05900cfa2b50d53b097cb305d54e249e31f24f881885aae5639b0cd6af4ed298'
 
     gwei_amount = ('{:.0f}'.format(eth_amount*(10**18))) 
@@ -30,9 +26,7 @@ def main(eth_amount, my_address, token_from='ETH', token_to='USDT', multiacc=Fal
     
     address_from = address_book[token_from]
     address_to = address_book[token_to]
-    command_approve = f'starknet invoke --address {address_from} --function approve --abi approve.json --inputs 0x041fd22b238fa21cfcf5dd45a8548974d8263b3a531a60388411c5e230f97023 {gwei_amount} 0' 
-    if multiacc:
-        command_approve = add_acc(command_approve)
+    command_approve = f'starknet invoke --address {address_from} --function approve --abi approve.json --account {wallet}  --inputs 0x041fd22b238fa21cfcf5dd45a8548974d8263b3a531a60388411c5e230f97023 {gwei_amount} 0' 
 
     p = subprocess.Popen(command_approve, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
@@ -62,10 +56,8 @@ def main(eth_amount, my_address, token_from='ETH', token_to='USDT', multiacc=Fal
     # на USDT 0x68f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8 
     # команда тратит газ
     
-    jediswap_command = f"starknet invoke --address 0x041fd22b238fa21cfcf5dd45a8548974d8263b3a531a60388411c5e230f97023 --function swap_exact_tokens_for_tokens --abi jediswap.json --inputs {gwei_amount} 0 {out_amount} 0 2 {address_from} {address_to} {my_address} {end_time}" 
+    jediswap_command = f"starknet invoke --address 0x041fd22b238fa21cfcf5dd45a8548974d8263b3a531a60388411c5e230f97023 --account {wallet}  --function swap_exact_tokens_for_tokens --abi jediswap.json --inputs {gwei_amount} 0 {out_amount} 0 2 {address_from} {address_to} {my_address} {end_time}" 
     
-    if multiacc:
-        jediswap_command = add_acc(jediswap_command)
     
     p = subprocess.Popen(jediswap_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     for i in p.stdout.readlines():
@@ -80,6 +72,6 @@ if __name__ == '__main__':
     
     args = parser.parse_args()
     if 'ETH' in [args.token_from, args.token_to]:
-        main(args.eth_amount, args.my_address, args.token_from, args.token_to)
+        jediswap(args.eth_amount, args.my_address, args.token_from, args.token_to)
     else:
         print('one of the token must be an ETH')
